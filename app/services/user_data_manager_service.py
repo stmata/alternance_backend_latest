@@ -180,7 +180,7 @@ class UserDataManager:
 
 
     
-    def add_prediction_result(self, user_id: str,platform: str, region: str, prediction_results: List[Dict], summary_type: str, filename: str = None, text_summary: str = None) -> None:
+    def add_prediction_result(self, user_id: str,platform: str, region: str, prediction_results: List[Dict], summary_type: str, filename: str = None, text_summary: str = None, city_for_filter :str = None,education_level: str = None) -> None:
         """
         Add prediction results to a user's list of prediction results.
 
@@ -231,6 +231,8 @@ class UserDataManager:
                 "typedeSummary": summary_type,
                 "platform" : platform,
                 "region" : region,
+                "city_for_filter" : city_for_filter,
+                "education_level" : education_level,
                 "added_date": datetime.now(timezone.utc).strftime('%Y-%m-%d à %H:%M')
             }
             if filename is not None:

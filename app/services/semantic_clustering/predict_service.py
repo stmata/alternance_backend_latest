@@ -275,6 +275,8 @@ class Predict:
                     typedeSummary,
                     filename,
                     text_summary,
+                    city_for_filter,
+                    education_level
                 )   
         except Exception as e:
             logger.exception(f"Failed to add prediction results for user {user_id} due to {str(e)}")
