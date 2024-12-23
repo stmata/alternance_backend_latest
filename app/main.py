@@ -1,4 +1,6 @@
 from fastapi import FastAPI
+import uvicorn
+import os
 from fastapi.middleware.cors import CORSMiddleware
 from app.routes.eda_route import eda_route
 from app.routes.email_route import email_router
@@ -29,3 +31,9 @@ app.include_router(pdf_input_summarize_router)
 app.include_router(predict_jobs_router)
 app.include_router(history_router)
 app.include_router(finalize_process_router)
+
+
+# Launch the app
+if __name__ == "__main__":
+    port = int(os.environ.get("PORT", 8000))
+    uvicorn.run(app, host="0.0.0.0", port=port)
