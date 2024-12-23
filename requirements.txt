@@ -17,8 +17,8 @@ ydata-profiling
 pandasai
 llama-index
 pyyaml
-numpy>=1.21,<1.25  
-numba==0.57.0
+numpy 
+numba
 python-multipart
 scikit-learn
 webdriver-manager
