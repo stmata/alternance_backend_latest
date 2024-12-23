@@ -165,54 +165,6 @@ class BlobService:
                     logger.exception("Error removing temporary file")
 
 
-    def retrieve_model_data(self, platform: str, region: str):
-        """
-        Retrieve model data from Azure Blob Storage using joblib.
-
-        Args:
-            platform (str): The platform name (e.g., 'linkedin', 'indeed').
-            region (str): The region name (e.g., 'hauts_de_france', 'ile_de_france').
-
-        Returns:
-            dict: A dictionary containing the retrieved model data.
-
-        Raises:
-            Exception: If there's an error during the retrieval process.
-        """
-        try:
-            base_path = f"clustering_results/{platform}/{region}"
-            model_data = {}
-
-            # Retrieve KMeans model
-            kmeans_blob = f"{base_path}/kmeans_model.pkl"
-            kmeans_bytes = self.download_blob_to_bytes(kmeans_blob)
-            model_data['kmeans_model'] = joblib.load(BytesIO(kmeans_bytes))
-
-            # Retrieve numpy arrays
-            for array_name in ['cluster_centers', 'paragraph_embeddings', 'labels']:
-                array_blob = f"{base_path}/{array_name}.npy"
-                array_bytes = self.download_blob_to_bytes(array_blob)
-                model_data[array_name] = np.load(BytesIO(array_bytes))
-
-            # Retrieve cleaned data CSV
-            csv_blob = f"{base_path}/{platform}_{region}.csv"
-            csv_bytes = self.download_blob_to_bytes(csv_blob)
-            model_data['data_cleaned'] = pd.read_csv(BytesIO(csv_bytes))
-
-            # Retrieve supervised models
-            model_data['supervised_models'] = {}
-            for model_name in ['RandomForest', 'SVM', 'LogisticRegression', 'KNN', 'GradientBoosting']:
-                model_blob = f"{base_path}/{model_name}_model.pkl"
-                model_bytes = self.download_blob_to_bytes(model_blob)
-                model_data['supervised_models'][model_name] = joblib.load(BytesIO(model_bytes))
-
-            logger.info(f"Model data retrieved for {platform} - {region}")
-            return model_data
-        except Exception as e:
-            logger.exception(f"Error retrieving model data for {platform} - {region}")
-            raise
-
-
     def upload_blob_from_bytes(self, data: bytes, blob_path: str):
         """
         Upload bytes data to Azure Blob Storage.
@@ -273,6 +225,106 @@ class BlobService:
         except Exception as e:
             logger.exception(f"Unexpected error deleting file")
             raise
+    
+    ##
+    def save_model_data(self, platform: str, region: str, model_data: dict):
+        """
+        Save model data to Azure Blob Storage using joblib.
+
+        Args:
+            platform (str): The platform name (e.g., 'linkedin', 'indeed').
+            region (str): The region name (e.g., 'hauts_de_france', 'ile_de_france').
+            model_data (dict): A dictionary containing model data to save.
+
+        Raises:
+            Exception: If there's an error during the save process.
+        """
+        try:
+            base_path = f"temp/clustering_results/{platform}/{region}"
+
+            # Save KMeans model
+            kmeans_blob = f"{base_path}/kmeans_model.pkl"
+            kmeans_buffer = BytesIO() 
+            joblib.dump(model_data['kmeans_model'], kmeans_buffer) 
+            kmeans_buffer.seek(0)  
+            self.upload_blob_from_bytes(kmeans_buffer, kmeans_blob)  
+
+            # Save numpy arrays
+            for array_name in ['cluster_centers', 'paragraph_embeddings', 'labels']:
+                array_blob = f"{base_path}/{array_name}.npy"
+                array_buffer = BytesIO()  
+                np.save(array_buffer, model_data[array_name]) 
+                array_buffer.seek(0)  
+                self.upload_blob_from_bytes(array_buffer, array_blob)  
+
+            # Save cleaned data CSV
+            csv_blob = f"{base_path}/{platform}_{region}.csv"
+            csv_buffer = BytesIO() 
+            model_data['data_cleaned'].to_csv(csv_buffer, index=False) 
+            csv_buffer.seek(0)  
+            self.upload_blob_from_bytes(csv_buffer, csv_blob) 
+
+            # Save supervised models
+            for model_name, model in model_data['supervised_models'].items():
+                model_blob = f"{base_path}/{model_name}_model.pkl"
+                model_buffer = BytesIO()  
+                joblib.dump(model, model_buffer)  
+                model_buffer.seek(0)  
+                self.upload_blob_from_bytes(model_buffer, model_blob)  
+
+            logger.info(f"Model data saved for {platform} - {region}")
+        except Exception as e:
+            logger.exception(f"Error saving model data for {platform} - {region}")
+            raise
+
+
+    def retrieve_model_data(self, platform: str, region: str):
+        """
+        Retrieve model data from Azure Blob Storage using joblib.
+
+        Args:
+            platform (str): The platform name (e.g., 'linkedin', 'indeed').
+            region (str): The region name (e.g., 'hauts_de_france', 'ile_de_france').
+
+        Returns:
+            dict: A dictionary containing the retrieved model data.
+
+        Raises:
+            Exception: If there's an error during the retrieval process.
+        """
+        try:
+            base_path = f"clustering_results/{platform}/{region}"
+            model_data = {}
+
+            # Retrieve KMeans model
+            kmeans_blob = f"{base_path}/kmeans_model.pkl"
+            kmeans_bytes = self.download_blob_to_bytes(kmeans_blob)
+            model_data['kmeans_model'] = joblib.load(BytesIO(kmeans_bytes))
+
+            # Retrieve numpy arrays
+            for array_name in ['cluster_centers', 'paragraph_embeddings', 'labels']:
+                array_blob = f"{base_path}/{array_name}.npy"
+                array_bytes = self.download_blob_to_bytes(array_blob)
+                model_data[array_name] = np.load(BytesIO(array_bytes))
+
+            # Retrieve cleaned data CSV
+            csv_blob = f"{base_path}/{platform}_{region}.csv"
+            csv_bytes = self.download_blob_to_bytes(csv_blob)
+            model_data['data_cleaned'] = pd.read_csv(BytesIO(csv_bytes))
+
+            # Retrieve supervised models
+            model_data['supervised_models'] = {}
+            for model_name in ['RandomForest', 'SVM', 'LogisticRegression', 'KNN', 'GradientBoosting']:
+                model_blob = f"{base_path}/{model_name}_model.pkl"
+                model_bytes = self.download_blob_to_bytes(model_blob)
+                model_data['supervised_models'][model_name] = joblib.load(BytesIO(model_bytes))
+
+            logger.info(f"Model data retrieved for {platform} - {region}")
+            return model_data
+        except Exception as e:
+            logger.exception(f"Error retrieving model data for {platform} - {region}")
+            raise
+
     
     def finalize_summarize_process(self, platform, region):
         """
