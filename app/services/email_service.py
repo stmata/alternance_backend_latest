@@ -5,6 +5,7 @@ import string
 import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
+from email.utils import formataddr, make_msgid
 from dotenv import load_dotenv
 from app.logFile import logger
 
@@ -39,13 +40,14 @@ class EmailService:
         self.email_user = GMAIL_USER
         self.email_password = GMAIL_PASSWORD
         self.verification_codes = {}
+        self.company_name = "SKEMA Business School"
     
     def cleanup_expired_codes(self):
         """
         Remove expired verification codes from the dictionary.
 
         This method iterates through the dictionary of verification codes
-        and deletes those that were created than 2 minutes ago (160 seconds).
+        and deletes those that were created than 5 minutes ago (300 seconds).
         This helps keep the dictionary up-to-date and prevents
         the validation of outdated codes.
 
@@ -55,9 +57,86 @@ class EmailService:
         current_time = time.time()
         for email in list(self.verification_codes.keys()):
             _, timestamp = self.verification_codes[email]
-            if (current_time - timestamp) > 120:
+            if (current_time - timestamp) > 300:
                 del self.verification_codes[email]
 
+    def send_email_without_spam(self, subject, body, code, to_email):
+        """
+        Sends an email with both plain text and HTML content, aiming to reduce the likelihood of being marked as spam.
+        
+        This function constructs an email with the provided subject, HTML body, and verification code, 
+        and attaches both a plain text and an HTML version of the content to the email. It adds custom headers
+        (such as Message-ID, Reply-To, and List-Unsubscribe) to improve email deliverability and reduce the 
+        chances of the email being marked as spam. The email is then sent using an SMTP server with proper authentication.
+        
+        Args:
+            subject (str): The subject of the email.
+            body (str): The HTML content of the email.
+            code (str): The verification code to be included in the email.
+            to_email (str): The recipient's email address.
+        
+        Returns:
+            bool: Returns `True` if the email was sent successfully, `False` otherwise.
+        
+        Raises:
+            Exception: If an error occurs during email construction or sending.
+        """
+        try:
+            msg = MIMEMultipart('alternative')
+            
+            # Use a professional format for the "From" header
+            msg['From'] = formataddr((self.company_name, self.email_user))
+            msg['To'] = to_email
+            msg['Subject'] = subject
+            
+            # Add headers to reduce the likelihood of the email being flagged as spam
+            msg['Message-ID'] = make_msgid(domain='skema.edu')
+            msg['Reply-To'] = self.email_user
+            msg['List-Unsubscribe'] = f'<mailto:{self.email_user}?subject=unsubscribe>'
+            
+            # Add a plain-text version for better deliverability
+            text_content = f"""
+                Welcome to Alternance App!
+    
+                Dear student,
+    
+                To complete your registration on the SKEMA Alternance App, please use the verification code below to verify your email address.
+    
+                This code is valid for two minutes.
+    
+                {code}
+    
+                If you did not request this code, please ignore this email.
+    
+                Best regards,
+                SKEMA Business School Team
+    
+                SKEMA Business School
+                SKEMA Business School Lille - Avenue Willy Brandt, 59777, France Lille
+                https://www.skema.edu/fr/contact
+            """
+    
+            msg.attach(MIMEText(text_content, 'plain'))
+            msg.attach(MIMEText(body, 'html'))
+    
+            # Configure the SMTP server with a timeout
+            server = smtplib.SMTP('smtp.gmail.com', 587, timeout=30)
+            server.starttls()
+            server.login(self.email_user, self.email_password)
+            
+            # Try sending the email with error handling
+            try:
+                server.sendmail(self.email_user, to_email, msg.as_string())
+            except smtplib.SMTPResponseException as e:
+                logger.error(f"SMTP Error {e.smtp_code}: {e.smtp_error}")
+                return False
+            finally:
+                server.quit()
+    
+            return True
+        except Exception as e:
+            logger.error(f"Failed to send email: {str(e)}")
+            return False
 
     def send_email(self, subject, body, to_email):
         """
@@ -153,7 +232,7 @@ class EmailService:
         """
         
         # Send the email using your email sending function 
-        return self.send_email(subject, body, email)
+        return self.send_email_without_spam(subject=subject, body=body, code=code, to_email=email)
 
     def verify_code(self, email, code):
         """
