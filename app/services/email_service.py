@@ -102,7 +102,7 @@ class EmailService:
     
                 To complete your registration on the SKEMA Alternance App, please use the verification code below to verify your email address.
     
-                This code is valid for two minutes.
+                This code is valid for five minutes.
     
                 {code}
     
@@ -205,7 +205,7 @@ class EmailService:
                             please use the verification code below to verify your email address.
                         </p>
                         <p style="font-size: 14px; color: #ff5733; font-weight: bold;">
-                            This code is valid for two minutes.
+                            This code is valid for five minutes.
                         </p>
                         <p style="font-size: 20px; color: #007bff; font-weight: bold; border: 1px solid #007bff; padding: 10px 20px; border-radius: 4px; display: inline-block;">
                             {code}
