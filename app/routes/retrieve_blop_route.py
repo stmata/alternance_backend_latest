@@ -38,7 +38,13 @@ async def retrieve_file(request: FileRetrievalRequest):
         # Read the file content (assuming it's a CSV file)
         with open(download_path, 'r') as file:
             reader = csv.DictReader(file)
-            content = [row for row in reader] 
+            #content = [row for row in reader]
+            # Filter rows where either 'Title' or 'Summary_fr' contains 'Alternance' or 'Alternant'
+            content = [
+                row for row in reader 
+                if ("Alternance" in row.get("Title", "") or "Alternant" in row.get("Title", "")) or
+                   ("Alternance" in row.get("Summary_fr", "") or "Alternant" in row.get("Summary_fr", ""))
+            ] 
         
         # Return the file content as a JSON response
         return {"message": f"Successfully retrieved {blob_path}", "content": content}
