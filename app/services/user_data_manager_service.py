@@ -199,7 +199,15 @@ class UserDataManager:
         try:
             # Step 1: Check if the user already has a similar prediction
             user_data = self.job_seeker_profiles.find_one({"_id": ObjectId(user_id)}, {"results_prediction": 1})
-            
+            city_mapping = {
+                "ile_de_france": "Île-de-France",
+                "hauts_de_france": "Hauts-de-France",
+                "alpes_cote_dazur": "Côte d'Azur",
+                "Others": "Autres régions"
+            }
+    
+            if city_for_filter in city_mapping:
+                city_for_filter = city_mapping[city_for_filter]
             # check if a prediction is similar based on filename or summary type.
             if user_data and "results_prediction" in user_data:
                 for prediction in user_data["results_prediction"]:
