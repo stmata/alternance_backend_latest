@@ -26,7 +26,7 @@ class SummarizedTextRequest(BaseModel):
 
     @field_validator("city_for_filter")
     def validate_city_for_filter(cls, value):
-        valid_cities = ['ile_de_france', 'hauts_de_france', 'Others']
+        valid_cities = ['ile_de_france', 'hauts_de_france', 'alpes_cote_dazur', 'Others']
         if value not in valid_cities:
             raise ValueError(f"Invalid city for filter. Valid options are {valid_cities}.")
         return value
