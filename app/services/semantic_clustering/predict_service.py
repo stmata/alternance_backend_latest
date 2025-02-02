@@ -195,8 +195,6 @@ class Predict:
         cluster_votes = Counter(model_results.values())
         majority_cluster = cluster_votes.most_common(1)[0][0]
 
-        # Find job listings matching the majority cluster
-        cluster_job_matches = self.job_data_df[self.job_data_df['cluster'] == majority_cluster].to_dict(orient='records')
 
         # Calculate cosine similarities between the summary and job embeddings
         similarities = cosine_similarity(summarized_embedding, self.paragraph_embeddings)[0]
@@ -207,27 +205,6 @@ class Predict:
         top_similar_jobs = sorted_job_data[
             (sorted_job_data['cluster'] == majority_cluster)
         ].to_dict(orient='records')
-
-        tasks = []
-        # Iterate over the top similar jobs
-        for job in top_similar_jobs:
-            # Append the asynchronous task for generating cover letter and missing skills
-            tasks.append(self.get_cover_lette_missing_and_matching_skills(job['cleaned_summary'], cleaned_text))
-
-        # Execute the asynchronous tasks concurrently
-        cover_letters_and_skills = await asyncio.gather(*tasks)
-
-        # Add the results of the cover letter and missing skills to each job
-        for job, results in zip(top_similar_jobs, cover_letters_and_skills):
-            job["cover_letter_en"] = results.get("cover_letter_en", "") 
-            job["cover_letter_fr"] = results.get("cover_letter_fr", "")  
-            job["missing_skills_en"] = results.get("missing_skills_en", "")
-            job["missing_skills_fr"] = results.get("missing_skills_fr", "")
-            job["matching_skills_en"] = results.get("matching_skills_en", "")
-            job["matching_skills_fr"] = results.get("matching_skills_fr", "")
-
-        # # Filter jobs to include only those with a similarity percentage of 70 or higher
-        # filtered_top_similar_jobs = [job for job in top_similar_jobs if job['Similarity (%)'] >= 70]
 
         # Filter to keep only the top 10 jobs
         filtered_top_similar_jobs = top_similar_jobs[:20]
@@ -260,8 +237,24 @@ class Predict:
         if not filtered_top_similar_jobs:
             filtered_top_similar_jobs = top_similar_jobs[:10]
             logger.error(f"No predictions found for user {user_id}. Skipping database update.")
-        else:
-            logger.info(f"Successfully added prediction results for user {user_id}")
+        
+        tasks = []
+        # Iterate over the top similar jobs
+        for job in filtered_top_similar_jobs:
+            # Append the asynchronous task for generating cover letter and missing skills
+            tasks.append(self.get_cover_lette_missing_and_matching_skills(job['cleaned_summary'], cleaned_text))
+
+        # Execute the asynchronous tasks concurrently
+        cover_letters_and_skills = await asyncio.gather(*tasks)
+
+        # Add the results of the cover letter and missing skills to each job
+        for job, results in zip(filtered_top_similar_jobs, cover_letters_and_skills):
+            job["cover_letter_en"] = results.get("cover_letter_en", "") 
+            job["cover_letter_fr"] = results.get("cover_letter_fr", "")  
+            job["missing_skills_en"] = results.get("missing_skills_en", "")
+            job["missing_skills_fr"] = results.get("missing_skills_fr", "")
+            job["matching_skills_en"] = results.get("matching_skills_en", "")
+            job["matching_skills_fr"] = results.get("matching_skills_fr", "")
 
         # Common block to add prediction results to the database
         try:
@@ -284,9 +277,6 @@ class Predict:
         # Construct the final response
         return {
             "Majority": majority_cluster,
-            #"supervised_model_results": model_results,
-            #"model_probabilities": {name: f"{prob * 100:.2f}%" if prob is not None else "N/A" for name, prob in model_probabilities.items()},
-            #"supervised_model_jobs": cluster_job_matches,
             "top_similar_jobs": filtered_top_similar_jobs
         }
 
