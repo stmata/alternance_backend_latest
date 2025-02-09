@@ -171,20 +171,28 @@ class EmailService:
             logger.error(f"Failed to send email: {str(e)}")
             return False
     
-    def send_verification_code(self, email):
+    
+    def send_verification_code(self, email: str, isUser: bool = True):
         """
         Send a verification code to the given email address with a more friendly and styled email content.
 
         Args:
             email (str): The recipient's email address.
+            isUser (bool): If True, sends user template, if False sends admin template. Defaults to True.
 
         Returns:
             bool: True if the email was sent successfully, False otherwise.
         """
-        #code (str): The verification code to be sent.
         code = generate_verification_code()
         self.verification_codes[email] = (code, time.time())
         subject = "SKEMA Business School - Verification Code for Alternance App"
+        
+        # Define content based on recipient type
+        content = {
+            "title": "Welcome to Alternance App!" if isUser else "Welcome to Alternance Back-Office!",
+            "recipient": "student" if isUser else "Admin",
+            "app_name": "SKEMA Alternance App" if isUser else "SKEMA Alternance Back-Office"
+        }
         
         # HTML body with inline styling for better presentation
         body = f"""
@@ -198,10 +206,10 @@ class EmailService:
                 </tr>
                 <tr>
                     <td style="text-align: center; color: #333333;">
-                        <h2 style="color: #007bff;">Welcome to Alternance App!</h2>
+                        <h2 style="color: #007bff;">{content['title']}</h2>
                         <p style="font-size: 16px; color: #555555;">
-                            Dear student,<br><br>
-                            To complete your registration on the <strong>SKEMA Alternance App</strong>, 
+                            Dear {content['recipient']},<br><br>
+                            To complete your registration on the <strong>{content['app_name']}</strong>, 
                             please use the verification code below to verify your email address.
                         </p>
                         <p style="font-size: 14px; color: #ff5733; font-weight: bold;">

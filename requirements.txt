@@ -216,3 +216,4 @@ wsproto==1.2.0
 yarl==1.13.1
 ydata-profiling==4.10.0
 zipp==3.20.2
+openpyxl
