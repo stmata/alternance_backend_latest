@@ -55,9 +55,9 @@ async def send_verification_code(request: EmailRequest):
                     detail="This email is neither from SKEMA nor registered in our database."
                 )
             
-            if is_skema_email and not user_info:
-                user_id, user_role = user_data_manager.get_or_create_user(request.email)
-                user_info = {"_id": user_id, "user_role": user_role}
+            #if is_skema_email and not user_info:
+            #    user_id, user_role = user_data_manager.get_or_create_user(request.email)
+            #    user_info = {"_id": user_id, "user_role": user_role}
                 
         is_user = user_info is not None and user_info.get("user_role") != "admin"
 
