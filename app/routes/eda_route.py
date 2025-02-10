@@ -135,6 +135,30 @@ async def get_active_sessions():
         logger.error(f"Error while retrieving active sessions: {str(e)}")
         raise HTTPException(status_code=500, detail="An error occurred while retrieving active sessions.")
 
+@eda_route.get("/admin-activity-logs", response_model=List[Dict])
+async def get_admin_activity_logs():
+    """
+    Endpoint to retrieve admin activity logs.
+    Returns:
+        List[Dict]: A list of admin activity logs with details such as admin email, name, action message, and timestamp.
+    """
+    try:
+        with datamanager_service() as mongodb_manager:
+            user_data_manager = user_data_manager_service(mongodb_manager)
+            logs = user_data_manager.get_admin_activity_logs()
+            
+            if logs:
+                return logs
+            else:
+                raise HTTPException(status_code=404, detail="No admin activity logs found.")
+    
+    except errors.PyMongoError as e:
+        logger.error(f"MongoDB error while retrieving admin activity logs: {str(e)}")
+        raise HTTPException(status_code=500, detail="Database error occurred while retrieving admin activity logs.")
+    
+    except Exception as e:
+        logger.error(f"Unexpected error while retrieving admin activity logs: {str(e)}")
+        raise HTTPException(status_code=500, detail="An unexpected error occurred while retrieving admin activity logs.")
 
 @eda_route.get("/get-all-users")
 async def get_all_users():
@@ -210,7 +234,14 @@ async def import_users(file: UploadFile = File(...), admin_email: str = Form(...
             inserted_count = result["inserted"]
             skipped_count = result["skipped"]
 
-            action_message = f"Admin a importé un fichier Excel contenant {inserted_count} utilisateurs insérés et {skipped_count} utilisateurs ignorés."
+            if skipped_count > 0:
+                action_message = (
+                f"Un fichier Excel contenant {inserted_count} enregistrements a été importé avec succès par l'administrateur. "
+                f"{skipped_count} enregistrements ont été ignorés en raison de doublons."
+                )
+            else:
+                action_message = f"Un fichier Excel contenant {inserted_count} enregistrements a été importé avec succès par l'administrateur."
+
             log_result = user_data_manager.log_admin_activity(
                 admin_email = admin_email,
                 action_message = action_message
@@ -255,7 +286,7 @@ async def create_user(request: CreateUserRequest):
             )
 
             if result["status"]:
-                action_message = f"Admin a créé un utilisateur avec l'email {request.email}."
+                action_message = f"Un nouvel utilisateur a été créé avec l'adresse e-mail : {request.email}."
                 log_result = user_data_manager.log_admin_activity(
                         admin_email=request.admin_email,  
                         action_message=action_message
@@ -297,7 +328,7 @@ async def update_user(request: UpdateUserRequest):
             )
 
             if result["status"]:
-                action_message = f"Admin a mis à jour les informations de l'utilisateur avec l'email {request.email}."
+                action_message = f"Les informations de l'utilisateur associé à l'adresse e-mail {request.email} ont été mises à jour."
                 log_result = user_data_manager.log_admin_activity(
                         admin_email=request.admin_email,  
                         action_message=action_message
@@ -332,7 +363,7 @@ async def delete_user(request: DeleteRequest):
             result = user_data_manager.delete_user(request.email)
 
             if result["status"]:
-                action_message = f"Admin a supprimé l'utilisateur avec l'email {request.email}."
+                action_message = f"L'utilisateur associé à l'adresse e-mail {request.email} a été supprimé du système."
                 log_result = user_data_manager.log_admin_activity(
                         admin_email=request.admin_email,  
                         action_message=action_message

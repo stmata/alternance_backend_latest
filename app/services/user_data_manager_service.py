@@ -831,4 +831,35 @@ class UserDataManager:
         except Exception as e:
             #print(f"Erreur inattendue : {e}")
             return False
-
+        
+    def get_admin_activity_logs(self) -> List[Dict]:
+        """
+        Retrieve all admin activity logs from the database.
+        
+        Returns:
+            List[Dict]: A list of formatted admin activity logs.
+        """
+        try:
+            logs = (
+                self.admin_activity_logs.find()
+                .sort("timestamp", -1)  
+            )
+            
+            formatted_logs = []
+            for log in logs:
+                formatted_logs.append({
+                    "id": str(log["_id"]),
+                    "admin_email": log.get("admin_email"),
+                    "admin_name": log.get("admin_name"),
+                    "action_message": log.get("action_message"),
+                    "timestamp": log.get("timestamp").strftime("%Y-%m-%d %H:%M:%S")  
+                })
+            
+            return formatted_logs
+        
+        except errors.PyMongoError as e:
+            print(f"Erreur lors de la récupération des logs d'activité : {e}")
+            return []
+        except Exception as e:
+            print(f"Erreur inattendue : {e}")
+            return []
