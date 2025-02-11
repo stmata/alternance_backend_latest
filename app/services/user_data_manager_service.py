@@ -130,23 +130,15 @@ class UserDataManager:
 
             current_count = 0
             previous_count = 0
-
+            
             for user in self.job_seeker_profiles.find():
-                current_count += sum(
-                    len([
-                        job for job in result.get("predict_jobs", [])
-                        if "added_date_parsed" in result and current_start <= result["added_date_parsed"] < current_end
-                    ])
-                    for result in user.get("results_prediction", [])
-                )
-
-                previous_count += sum(
-                    len([
-                        job for job in result.get("predict_jobs", [])
-                        if "added_date_parsed" in result and previous_start <= result["added_date_parsed"] < current_start
-                    ])
-                    for result in user.get("results_prediction", [])
-                )
+                for result in user.get("results_prediction", []):
+                    if "added_date_parsed" in result:
+                        added_date = result["added_date_parsed"]
+                        if current_start <= added_date < current_end:
+                            current_count += 1
+                        elif previous_start <= added_date < current_start:
+                            previous_count += 1
 
             trend = self._calculate_trend(current_count, previous_count)
 
@@ -261,25 +253,46 @@ class UserDataManager:
             print(f"Error in get_regions_usage: {e}")
             return {}
         
-    def create_user(self, email: str, username: str, isAdmin: bool) -> Dict[str, bool]:
+    
+    def create_user(self, email: str, isAdmin: bool = False, username: str = None) -> Dict[str, bool]:
         """
         Create a new user if the email does not already exist.
 
         Args:
             email (str): The email address of the user.
-            username (str): The username of the user.
-            isAdmin (bool): Flag to determine if the user is an admin.
+            username (str, optional): The username of the user. If not provided, it will be generated from the email.
+            isAdmin (bool, optional): Flag to determine if the user is an admin. Defaults to False.
 
         Returns:
             dict: A dictionary containing a success status.
+
+        Raises:
+            Exception: If a database error occurs during user creation.
         """
         try:
+            # Convert email to lowercase
             email = email.lower()
+            
+            # Check if user already exists
             existing_user = self.job_seeker_profiles.find_one({"email": email})
             if existing_user:
                 return {"status": False}
 
+            if username is None:
+                try:
+                    username_part = email.split('@')[0]
+                    prenom, nom = username_part.split('.')
+                    nom = nom.capitalize()
+                    prenom = prenom.capitalize()
+                    username = f"{prenom} {nom}"
+
+                except (ValueError, IndexError):
+                    username = email.split('@')[0]
+
+            # Determine user role
             user_role = "admin" if isAdmin else "user"
+
+            # Prepare user data
             user_data = {
                 "_id": ObjectId(),
                 "email": email,
@@ -288,8 +301,11 @@ class UserDataManager:
                 "liked_posts": [],
                 "results_prediction": []
             }
+
+            # Insert user into database
             self.job_seeker_profiles.insert_one(user_data)
             return {"status": True}
+
         except errors.PyMongoError as e:
             raise Exception(f"Database error occurred: {str(e)}")
 
@@ -449,9 +465,11 @@ class UserDataManager:
         try:
             df = pd.read_excel(file_path, header=1)
 
-            df['Users'] = df['Prénom'].astype(str) + ' ' + df['Nom'].astype(str)
+            df = df[['Prénom', 'Nom', 'Email SKEMA']].dropna(subset=['Email SKEMA'])
 
-            df['Email'] = df['Email SKEMA'].fillna(df['Email']).astype(str).str.lower()
+            df['Email'] = df['Email SKEMA'].astype(str).str.lower()
+
+            df['Users'] = df['Prénom'].astype(str) + ' ' + df['Nom'].astype(str)
 
             df_final = df[['Users', 'Email']].drop_duplicates(subset=['Email'])
 

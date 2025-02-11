@@ -4,7 +4,7 @@ from pymongo import errors
 import os
 import pandas as pd
 import tempfile
-from typing import Annotated, Dict, List
+from typing import Annotated, Dict, List, Optional
 from app.services import blob_service
 from app.services import data_analysis_service, user_data_manager_service, datamanager_service
 from app.logFile import logger
@@ -27,8 +27,8 @@ class TrendRequest(BaseModel):
 
 class CreateUserRequest(BaseModel):
     email: EmailStr
-    username: Annotated[str, Field(min_length=1)]
-    isAdmin: bool
+    username: Optional[Annotated[str, Field(min_length=1)]] = None
+    isAdmin: bool = False
     admin_email: EmailStr
 
 class UpdateUserRequest(BaseModel):
@@ -269,10 +269,14 @@ async def import_users(file: UploadFile = File(...), admin_email: str = Form(...
 async def create_user(request: CreateUserRequest):
     """
     Endpoint to create a new user if the email does not already exist.
+    
     Args:
         request (CreateUserRequest): The request body containing user details and the admin email.
+                                   Username is optional and will be generated from email if not provided.
+    
     Returns:
         UserResponse: A response containing success status and message.
+    
     Raises:
         HTTPException: If an error occurs during user creation.
     """
@@ -280,17 +284,17 @@ async def create_user(request: CreateUserRequest):
         with datamanager_service() as mongodb_manager:
             user_data_manager = user_data_manager_service(mongodb_manager)
             result = user_data_manager.create_user(
-                request.email,
-                request.username,
-                request.isAdmin
+                email=request.email,
+                isAdmin=request.isAdmin,
+                username=request.username, 
             )
 
             if result["status"]:
                 action_message = f"Un nouvel utilisateur a été créé avec l'adresse e-mail : {request.email}."
                 log_result = user_data_manager.log_admin_activity(
-                        admin_email=request.admin_email,  
-                        action_message=action_message
-                    )
+                    admin_email=request.admin_email,
+                    action_message=action_message
+                )
                     
                 if not log_result:
                     logger.warning("Admin activity logging failed")
