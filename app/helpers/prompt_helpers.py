@@ -216,3 +216,49 @@ class Prompt:
                  )
         
         return prompt
+    
+    @staticmethod
+    def missing_skills_business_school_prompt() -> str:
+        """
+        Returns a prompt template for analyzing and summarizing missing skills
+        in a business school context, with emphasis on clear gaps identification.
+        """
+        prompt = (
+            "You are an expert career advisor for a prestigious business school. Your task is to analyze the missing skills "
+            "and present them in a clear, direct format that emphasizes the GAPS in the student's profile. "
+            "\n\n"
+            "Given Skills:\n{skills_data}"
+            "\n\n"
+            "Instructions:\n"
+            "- Analyze the provided skills and determine what is missing.\n"
+            "- Convert missing skills into concise statements.\n"
+            "- Start each statement with action words like: 'Needs', 'Lacks', 'Requires', 'Missing'.\n"
+            "- Do NOT use: 'Mastery in', 'Proficiency in', 'Excellence in'.\n"
+            "- Keep each statement under 10 words when possible.\n"
+            "- Organize statements into relevant categories (Business, Technical, Professional, Market Knowledge).\n"
+            "\n"
+            "**Important Formatting Rules:**\n"
+            "- DO NOT return a JSON structure.\n"
+            "- Return ONLY two separate lists: one in English, one in French.\n"
+            "- Each missing skill must be a bullet point using '-'.\n"
+            "- Do NOT use additional headers, sections, or tables.\n"
+            "\n"
+            "**Expected Output Example:**\n"
+            "en:\n"
+            "- Needs data analysis skills for business decisions\n"
+            "- Lacks project management certification\n"
+            "- Missing digital marketing experience\n"
+            "\n"
+            "fr:\n"
+            "- Manque de compétences en analyse de données\n"
+            "- Besoin d'une certification en gestion de projet\n"
+            "- Absence d'expérience en marketing digital\n"
+            "\n"
+            "Key Words to Start Statements:\n"
+            "EN: Needs, Lacks, Requires, Missing, Must develop, To acquire\n"
+            "FR: Besoin de, Manque de, Absence de, À développer, Nécessite, À acquérir\n"
+            "\n"
+            "Please return the missing skills as two separate lists formatted with bullet points, one in English and one in French."
+        )
+
+        return prompt

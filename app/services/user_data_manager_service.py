@@ -2,6 +2,8 @@ from bson import ObjectId
 import pandas as pd
 from datetime import datetime, timezone, timedelta
 from typing import Dict, List, Optional, Tuple
+from app.helpers import prompt_helpers
+from app.services.summarize_desc import summarization_service
 from pymongo import errors
 
 class UserDataManager:
@@ -190,7 +192,7 @@ class UserDataManager:
             print(f"Error in get_liked_posts_trends: {e}")
             return {}
 
-    def missings_skills_user(self, email: str) -> Dict[str, List[str]]:
+    async def missings_skills_user(self, email: str) -> Dict[str, List[str]]:
         """
         Retrieve all missing skills for a specific user from their results_prediction.
         Args:
@@ -220,10 +222,37 @@ class UserDataManager:
 
             missing_skills_en = list(set(skill.strip() for skill in missing_skills_en if skill.strip()))
             missing_skills_fr = list(set(skill.strip() for skill in missing_skills_fr if skill.strip()))
+            
+            skills_data = {
+            "raw_skills_en": missing_skills_en,
+            "raw_skills_fr": missing_skills_fr
+            }
+            missing_skills_prompt = prompt_helpers.missing_skills_business_school_prompt()
+            summary_text = await summarization_service.summarize(skills_data, missing_skills_prompt)
+
+            summary_lines = summary_text.strip().split("\n")
+
+            processed_skills_en = []
+            processed_skills_fr = []
+            current_lang = None
+
+            for line in summary_lines:
+                if line.lower().startswith("en:"):
+                    current_lang = "en"
+                    continue
+                elif line.lower().startswith("fr:"):
+                    current_lang = "fr"
+                    continue
+                
+                if line.startswith("-"):  
+                    if current_lang == "en":
+                        processed_skills_en.append(line.strip())
+                    elif current_lang == "fr":
+                        processed_skills_fr.append(line.strip())
 
             return {
-                "en": missing_skills_en,
-                "fr": missing_skills_fr
+                "en": processed_skills_en,
+                "fr": processed_skills_fr
             }
 
         except Exception as e:
