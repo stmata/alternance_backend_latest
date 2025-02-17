@@ -2,6 +2,7 @@ import csv
 from fastapi import APIRouter, HTTPException
 from app.services import blob_service 
 from app.logFile import logger
+import random
 import os
 import tempfile
 from pydantic import BaseModel
@@ -83,13 +84,14 @@ async def retrieve_file_with_summarize(request: FileRetrievalRequest):
         # Read the file content (assuming it's a CSV file containing a 'Summarize' field)
         with open(download_path, 'r') as file:
             reader = csv.DictReader(file)
-            #content = [row for row in reader] 
+            content = [row for row in reader]
+            random.shuffle(content) 
             # Filter rows where either 'Title' or 'Summary_fr' contains 'Alternance' or 'Alternant'
-            content = [
-                row for row in reader 
-                if ("Alternance" in row.get("Title", "") or "Alternant" in row.get("Title", "")) or
-                   ("Alternance" in row.get("Summary_fr", "") or "Alternant" in row.get("Summary_fr", ""))
-            ] 
+            #content = [
+            #    row for row in reader 
+            #    if ("Alternance" in row.get("Title", "") or "Alternant" in row.get("Title", "")) or
+            #       ("Alternance" in row.get("Summary_fr", "") or "Alternant" in row.get("Summary_fr", ""))
+            #] 
         # Return the file content as a JSON response
         return {"message": f"Successfully retrieved {blob_path}", "content": content}
     
