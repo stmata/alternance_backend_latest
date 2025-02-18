@@ -139,9 +139,9 @@ class EmailService:
         
         # Define content based on recipient type
         content = {
-            "title": "Welcome to Alternance App!" if isUser else "Welcome to Alternance Back-Office!",
+            "title": "Welcome to Alternance App!" if isUser else "Welcome to Alternance & Back-Office!",
             "recipient": "student" if isUser else "Admin",
-            "app_name": "SKEMA Alternance App" if isUser else "SKEMA Alternance Back-Office"
+            "app_name": "SKEMA Alternance App" if isUser else "SKEMA Alternance & Back-Office"
         }
         
         # HTML body with inline styling for better presentation
