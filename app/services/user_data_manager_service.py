@@ -219,7 +219,9 @@ class UserDataManager:
 
                     if "missing_skills_fr" in prediction:
                         missing_skills_fr.extend(prediction["missing_skills_fr"].split("\n"))
-
+            if not missing_skills_en and not missing_skills_fr:
+                return {"en": [], "fr": []}
+            
             missing_skills_en = list(set(skill.strip() for skill in missing_skills_en if skill.strip()))
             missing_skills_fr = list(set(skill.strip() for skill in missing_skills_fr if skill.strip()))
             

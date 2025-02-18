@@ -94,22 +94,59 @@ class Prompt:
         Returns:
             str: The bilingual prompt for cover letter generation.
         """
-        prompt = ("Given the following candidate summary and job description, generate a personalized and professional cover letter in Markdown format that feels genuine and crafted by a human."
-                  "Ensure the tone is polite, engaging, and natural, avoiding any robotic or overly formal phrasing. The letter should include the following structure:"
-                  "1. A placeholder for the Sender's Address, Recipient's Address, and Date."
-                  "2. A Subject line that clearly states the position being applied for."
-                  "3. An opening paragraph that introduces the candidate, mentions the job title, and expresses genuine interest in both the role and the company, demonstrating a strong understanding of the company’s mission or values."
-                  "4. A second paragraph that highlights specific skills and relevant experiences from the candidate summary that directly match the job description, weaving these into a brief story or achievement to make them feel natural."
-                  "5. A third paragraph that addresses any transitions or gaps in the candidate's career and explains how these experiences have enriched their perspective, adding value to the role they are applying for."
-                  "6. A closing paragraph that shows genuine enthusiasm for the position, thanks the employer, and expresses eagerness to discuss how the candidate can contribute to the company's success."
-                  "7. Include a Signature block with placeholders for Name and Contact Information."
-                  "Tone and Length:"
-                  "1. The tone should be human, approachable, and professional. Avoid overly formal or robotic language."
-                  "2. The letter should be concise, natural, and flow smoothly, ideally within 3-4 paragraphs. The result should feel tailored and thoughtful, as if written by the candidate themselves."
-                  "\nThe output should include both English and French versions, formatted with clear headings and bullet points for each section, in a structured manner as follows:\n"
-                  "### English Version\n"
-                  "\n### Version Française\n"
-                  )
+        #prompt = ("Given the following candidate summary and job description, generate a personalized and professional cover letter in Markdown format that feels genuine and crafted by a human."
+        #          "Ensure the tone is polite, engaging, and natural, avoiding any robotic or overly formal phrasing. The letter should include the following structure:"
+        #          "1. A placeholder for the Sender's Address, Recipient's Address, and Date."
+        #          "2. A Subject line that clearly states the position being applied for."
+        #         "3. An opening paragraph that introduces the candidate, mentions the job title, and expresses genuine interest in both the role and the company, demonstrating a strong understanding of the company’s mission or values."
+        #          "4. A second paragraph that highlights specific skills and relevant experiences from the candidate summary that directly match the job description, weaving these into a brief story or achievement to make them feel natural."
+        #          "5. A third paragraph that addresses any transitions or gaps in the candidate's career and explains how these experiences have enriched their perspective, adding value to the role they are applying for."
+        #          "6. A closing paragraph that shows genuine enthusiasm for the position, thanks the employer, and expresses eagerness to discuss how the candidate can contribute to the company's success."
+        #          "7. Include a Signature block with placeholders for Name and Contact Information."
+        #          "Tone and Length:"
+        #          "1. The tone should be human, approachable, and professional. Avoid overly formal or robotic language."
+        #          "2. The letter should be concise, natural, and flow smoothly, ideally within 3-4 paragraphs. The result should feel tailored and thoughtful, as if written by the candidate themselves."
+        #          "\nThe output should include both English and French versions, formatted with clear headings and bullet points for each section, in a structured manner as follows:\n"
+        #          "### English Version\n"
+        #          "\n### Version Française\n"
+        #          )
+        prompt = (
+            "Using the candidate’s summary and the provided job description, generate a **well-crafted, personalized, and compelling** cover letter in Markdown format. "
+            "Ensure that the letter reads as if written by the candidate themselves, exhibiting a natural flow, professionalism, and enthusiasm while avoiding generic, robotic, or overly formulaic phrasing.\n\n"
+            "**Structure of the Cover Letter:**\n"
+            "1. **Header Section:**\n"
+            "   - Placeholders for **Sender’s Address, Recipient’s Address, and Date**.\n"
+            "   - A clear **Subject line** stating the position being applied for.\n\n"
+            "2. **Opening Paragraph:**\n"
+            "   - A warm and engaging introduction that immediately captures the employer’s attention.\n"
+            "   - Clearly states the **job title** and expresses sincere enthusiasm for the role and company.\n"
+            "   - Demonstrates a **genuine understanding of the company’s mission, values, or recent achievements**.\n\n"
+            "3. **Core Strengths & Achievements:**\n"
+            "   - Highlights key **skills and experiences** that **directly match** the job description.\n"
+            "   - Integrates these into a **brief and compelling story or accomplishment** to add credibility.\n"
+            "   - Uses natural transitions to ensure a seamless flow of ideas.\n\n"
+            "4. **Addressing Career Transitions or Gaps (if applicable):**\n"
+            "   - Provides a **brief, positive, and professional explanation** of any transitions, career shifts, or gaps.\n"
+            "   - Emphasizes how these experiences have **enriched the candidate’s perspective and value** for the applied role.\n\n"
+            "5. **Closing Paragraph:**\n"
+            "   - Expresses **genuine enthusiasm** for the opportunity and gratitude for the employer’s time.\n"
+            "   - Reaffirms the candidate’s desire to discuss how their expertise can contribute to the company’s success.\n"
+            "   - Ends with a **polite yet confident call to action**, such as a willingness to meet or discuss further.\n\n"
+            "6. **Signature Block:**\n"
+            "   - Includes placeholders for **Name, Contact Information, and any relevant LinkedIn or portfolio links**.\n\n"
+            "**Tone & Style:**\n"
+            "✔ **Human, engaging, and professional:** Avoids generic AI-generated phrasing.\n"
+            "✔ **Academically refined but approachable:** Uses clear, articulate, and well-structured language.\n"
+            "✔ **Concise and well-paced:** Ideally within 3-4 paragraphs, ensuring **brevity without sacrificing depth**.\n"
+            "✔ **Tailored & thoughtful:** Feels uniquely written for the candidate, avoiding clichés or generic statements.\n\n"
+            "**Final Check Before Output:**\n"
+            "✔ Ensure all elements align naturally with the candidate’s profile and the job description.\n"
+            "✔ Avoid redundancy or excessive formalism; maintain a smooth and logical flow.\n"
+            "✔ Guarantee coherence between the **candidate’s strengths and the job role**.\n\n"
+            "The final output must be bilingual, formatted with clear headings and bullet points for each section, in a structured manner as follows:\n"
+            "### English Version\n"
+            "\n### Version Française\n"
+        )
         
         return prompt
 
@@ -124,14 +161,26 @@ class Prompt:
             str: The bilingual prompt for identifying missing skills.
         """
 
-        prompt = ("Compare the following candidate summary with the given job description, and:"
-                "1. Identify key skills, qualifications, or experiences from the job description that are absent or not clearly mentioned in the candidate's summary."
-                "2.  For each missing skill or qualification, provide a short and specific phrase detailing what is missing."
-                "3. Use bullet points for each missing element, keeping the explanation concise and focused."
-                "\nThe output should include both English and French versions, presented in a clear and professional manner formatted with clear headings and bullet points as follows:\n"
-                "### English Version\n"
-                "\n### Version Française\n"
-            )
+        #prompt = ("Compare the following candidate summary with the given job description, and:"
+        #        "1. Identify key skills, qualifications, or experiences from the job description that are absent or not clearly mentioned in the candidate's summary."
+        #        "2.  For each missing skill or qualification, provide a short and specific phrase detailing what is missing."
+        #        "3. Use bullet points for each missing element, keeping the explanation concise and focused."
+        #        "\nThe output should include both English and French versions, presented in a clear and professional manner formatted with clear headings and bullet points as follows:\n"
+        #        "### English Version\n"
+        #        "\n### Version Française\n"
+        #    )
+        prompt = (
+            "Compare the candidate's summary with the given job description and:\n"
+            "1. Identify key skills, qualifications, or experiences required in the job description that are absent or not clearly mentioned in the candidate's summary.\n"
+            "2. Consider semantic similarity: If a skill is mentioned in a different but equivalent way, do not mark it as missing.\n"
+            "   - For example, if the job requires 'Business English' and the candidate is 'fluent in English,' do NOT consider Business English as missing.\n"
+            "   - If the job requires 'project management' and the candidate states 'led multiple projects,' do NOT consider it missing.\n"
+            "3. Do NOT include unnecessary adjectives or adverbs—only list essential skills and qualifications.\n"
+            "4. Ensure that the final output is reviewed before returning and only includes genuinely missing elements.\n"
+            "5. Present the results in a clear and structured format with distinct headings and bullet points as follows:\n"
+            "### English Version\n"
+            "\n### Version Française\n"
+        )
         return prompt
 
    
@@ -145,15 +194,28 @@ class Prompt:
             str: A bilingual prompt for identifying matching skills.
         """
 
+        #prompt = (
+        #  "Compare the candidate summary below with the provided job description, and strictly follow these instructions:\n"
+        #  "1. Only list the skills, qualifications, or experiences that are explicitly mentioned in both the job description and the candidate's summary.\n"
+        #  "2. For each matching skill, provide a concise explanation of how it aligns with the job requirements.\n"
+        #  "3. Use bullet points to present each matching element, ensuring the descriptions are clear and direct.\n"
+        #  "4. Do not make any assumptions or guesses about the candidate's abilities beyond what is explicitly stated in their summary.\n"
+        #  "\nThe output should include both English and French versions, presented in a clear and professional manner formatted with clear headings and bullet points as follows:\n"
+        #  "### English Version\n"
+        #  "\n### Version Française\n"
+        #)
         prompt = (
-          "Compare the candidate summary below with the provided job description, and strictly follow these instructions:\n"
-          "1. Only list the skills, qualifications, or experiences that are explicitly mentioned in both the job description and the candidate's summary.\n"
-          "2. For each matching skill, provide a concise explanation of how it aligns with the job requirements.\n"
-          "3. Use bullet points to present each matching element, ensuring the descriptions are clear and direct.\n"
-          "4. Do not make any assumptions or guesses about the candidate's abilities beyond what is explicitly stated in their summary.\n"
-          "\nThe output should include both English and French versions, presented in a clear and professional manner formatted with clear headings and bullet points as follows:\n"
-          "### English Version\n"
-          "\n### Version Française\n"
+            "Compare the candidate's summary with the provided job description, and follow these precise instructions:\n\n"
+            "1. Identify skills, qualifications, or experiences that are **explicitly or semantically present** in both the job description and the candidate's summary.\n"
+            "   - Consider variations in wording, but ensure they retain the same meaning (e.g., 'project management' and 'managed multiple projects' should be considered a match).\n"
+            "   - If a skill is only **implied** but not directly stated in both, do NOT include it.\n"
+            "2. Ensure **each skill is clearly aligned with the job description**—do not add redundant explanations.\n"
+            "3. Only return essential skills without unnecessary adjectives or embellishments (e.g., write 'Python' instead of 'Strong Python programming skills').\n"
+            "4. **Do not assume or infer additional abilities** beyond what is explicitly provided.\n"
+            "5. **Before finalizing the list, double-check each skill** to confirm it is genuinely present in both sources and not just a partial or loosely related match.\n"
+            "6. Present the output in a structured format with clear headings and bullet points, separating the English and French sections as follows:\n"
+            "### English Version\n"
+            "\n### Version Française\n"
         )
 
         return prompt
