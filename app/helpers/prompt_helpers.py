@@ -161,26 +161,26 @@ class Prompt:
             str: The bilingual prompt for identifying missing skills.
         """
 
-        #prompt = ("Compare the following candidate summary with the given job description, and:"
-        #        "1. Identify key skills, qualifications, or experiences from the job description that are absent or not clearly mentioned in the candidate's summary."
-        #        "2.  For each missing skill or qualification, provide a short and specific phrase detailing what is missing."
-        #        "3. Use bullet points for each missing element, keeping the explanation concise and focused."
-        #        "\nThe output should include both English and French versions, presented in a clear and professional manner formatted with clear headings and bullet points as follows:\n"
-        #        "### English Version\n"
-        #        "\n### Version Française\n"
-        #    )
-        prompt = (
-            "Compare the candidate's summary with the given job description and:\n"
-            "1. Identify key skills, qualifications, or experiences required in the job description that are absent or not clearly mentioned in the candidate's summary.\n"
-            "2. Consider semantic similarity: If a skill is mentioned in a different but equivalent way, do not mark it as missing.\n"
-            "   - For example, if the job requires 'Business English' and the candidate is 'fluent in English,' do NOT consider Business English as missing.\n"
-            "   - If the job requires 'project management' and the candidate states 'led multiple projects,' do NOT consider it missing.\n"
-            "3. Do NOT include unnecessary adjectives or adverbs—only list essential skills and qualifications.\n"
-            "4. Ensure that the final output is reviewed before returning and only includes genuinely missing elements.\n"
-            "5. Present the results in a clear and structured format with distinct headings and bullet points as follows:\n"
-            "### English Version\n"
-            "\n### Version Française\n"
-        )
+        prompt = ("Compare the following candidate summary with the given job description, and:"
+               "1. Identify key skills, qualifications, or experiences from the job description that are absent or not clearly mentioned in the candidate's summary."
+               "2.  For each missing skill or qualification, provide a short and specific phrase detailing what is missing."
+               "3. Use bullet points for each missing element, keeping the explanation concise and focused."
+               "\nThe output should include both English and French versions, presented in a clear and professional manner formatted with clear headings and bullet points as follows:\n"
+               "### English Version\n"
+               "\n### Version Française\n"
+           )
+        # prompt = (
+        #     "Compare the candidate's summary with the given job description and:\n"
+        #     "1. Identify key skills, qualifications, or experiences required in the job description that are absent or not clearly mentioned in the candidate's summary.\n"
+        #     "2. Consider semantic similarity: If a skill is mentioned in a different but equivalent way, do not mark it as missing.\n"
+        #     "   - For example, if the job requires 'Business English' and the candidate is 'fluent in English,' do NOT consider Business English as missing.\n"
+        #     "   - If the job requires 'project management' and the candidate states 'led multiple projects,' do NOT consider it missing.\n"
+        #     "3. Do NOT include unnecessary adjectives or adverbs—only list essential skills and qualifications.\n"
+        #     "4. Ensure that the final output is reviewed before returning and only includes genuinely missing elements.\n"
+        #     "5. Present the results in a clear and structured format with distinct headings and bullet points as follows:\n"
+        #     "### English Version\n"
+        #     "\n### Version Française\n"
+        # )
         return prompt
 
    
@@ -194,29 +194,29 @@ class Prompt:
             str: A bilingual prompt for identifying matching skills.
         """
 
-        #prompt = (
-        #  "Compare the candidate summary below with the provided job description, and strictly follow these instructions:\n"
-        #  "1. Only list the skills, qualifications, or experiences that are explicitly mentioned in both the job description and the candidate's summary.\n"
-        #  "2. For each matching skill, provide a concise explanation of how it aligns with the job requirements.\n"
-        #  "3. Use bullet points to present each matching element, ensuring the descriptions are clear and direct.\n"
-        #  "4. Do not make any assumptions or guesses about the candidate's abilities beyond what is explicitly stated in their summary.\n"
-        #  "\nThe output should include both English and French versions, presented in a clear and professional manner formatted with clear headings and bullet points as follows:\n"
-        #  "### English Version\n"
-        #  "\n### Version Française\n"
-        #)
         prompt = (
-            "Compare the candidate's summary with the provided job description, and follow these precise instructions:\n\n"
-            "1. Identify skills, qualifications, or experiences that are **explicitly or semantically present** in both the job description and the candidate's summary.\n"
-            "   - Consider variations in wording, but ensure they retain the same meaning (e.g., 'project management' and 'managed multiple projects' should be considered a match).\n"
-            "   - If a skill is only **implied** but not directly stated in both, do NOT include it.\n"
-            "2. Ensure **each skill is clearly aligned with the job description**—do not add redundant explanations.\n"
-            "3. Only return essential skills without unnecessary adjectives or embellishments (e.g., write 'Python' instead of 'Strong Python programming skills').\n"
-            "4. **Do not assume or infer additional abilities** beyond what is explicitly provided.\n"
-            "5. **Before finalizing the list, double-check each skill** to confirm it is genuinely present in both sources and not just a partial or loosely related match.\n"
-            "6. Present the output in a structured format with clear headings and bullet points, separating the English and French sections as follows:\n"
-            "### English Version\n"
-            "\n### Version Française\n"
+         "Compare the candidate summary below with the provided job description, and strictly follow these instructions:\n"
+         "1. Only list the skills, qualifications, or experiences that are explicitly mentioned in both the job description and the candidate's summary.\n"
+         "2. For each matching skill, provide a concise explanation of how it aligns with the job requirements.\n"
+         "3. Use bullet points to present each matching element, ensuring the descriptions are clear and direct.\n"
+         "4. Do not make any assumptions or guesses about the candidate's abilities beyond what is explicitly stated in their summary.\n"
+         "\nThe output should include both English and French versions, presented in a clear and professional manner formatted with clear headings and bullet points as follows:\n"
+         "### English Version\n"
+         "\n### Version Française\n"
         )
+        # prompt = (
+        #     "Compare the candidate's summary with the provided job description, and follow these precise instructions:\n\n"
+        #     "1. Identify skills, qualifications, or experiences that are **explicitly or semantically present** in both the job description and the candidate's summary.\n"
+        #     "   - Consider variations in wording, but ensure they retain the same meaning (e.g., 'project management' and 'managed multiple projects' should be considered a match).\n"
+        #     "   - If a skill is only **implied** but not directly stated in both, do NOT include it.\n"
+        #     "2. Ensure **each skill is clearly aligned with the job description**—do not add redundant explanations.\n"
+        #     "3. Only return essential skills without unnecessary adjectives or embellishments (e.g., write 'Python' instead of 'Strong Python programming skills').\n"
+        #     "4. **Do not assume or infer additional abilities** beyond what is explicitly provided.\n"
+        #     "5. **Before finalizing the list, double-check each skill** to confirm it is genuinely present in both sources and not just a partial or loosely related match.\n"
+        #     "6. Present the output in a structured format with clear headings and bullet points, separating the English and French sections as follows:\n"
+        #     "### English Version\n"
+        #     "\n### Version Française\n"
+        # )
 
         return prompt
     
