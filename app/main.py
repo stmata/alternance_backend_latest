@@ -12,7 +12,7 @@ from app.routes.finalize_porcess_route import finalize_process_router
 
 
 
-app = FastAPI()
+app = FastAPI(docs_url=None, redoc_url=None, version='0.1')
 
 # CORS setup
 app.add_middleware(
