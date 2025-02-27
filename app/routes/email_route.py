@@ -24,6 +24,42 @@ class RefreshTokenRequest(BaseModel):
 class EmailRequest(BaseModel):
     email: str
 
+class ContactRequest(BaseModel):
+    user_email: EmailStr
+    message_text: str
+
+
+@eda_route.post("/send-contact-message")
+async def send_contact_message(request: ContactRequest):
+    """
+    Endpoint for students to send questions or contact messages to the admissions department.
+    
+    Args:
+        request (ContactRequest): The request containing the user's email and message text.
+    
+    Returns:
+        dict: A response indicating whether the message was sent successfully.
+    """
+    try:
+        success = email_service.send_contact_message(
+            user_email=request.user_email,
+            message_text=request.message_text
+        )
+        
+        if success:
+            return {"message": "Contact message sent successfully", "status": True}
+        else:
+            raise HTTPException(
+                status_code=500,
+                detail="Failed to send contact message"
+            )
+            
+    except Exception as e:
+        logger.error(f"Error occurred while sending contact message: {str(e)}")
+        raise HTTPException(
+            status_code=500,
+            detail=f"An error occurred while sending the contact message: {str(e)}"
+        )
 
 @email_router.post("/send-verification-code")
 async def send_verification_code(request: EmailRequest):
