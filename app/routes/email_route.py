@@ -1,6 +1,7 @@
 from fastapi import APIRouter, HTTPException, status
 from fastapi.responses import JSONResponse
-from pydantic import BaseModel
+from pydantic import BaseModel, Field, EmailStr
+from typing import Annotated, Dict, List, Optional
 from datetime import datetime, timedelta, timezone
 from app.services import email_service, user_data_manager_service, datamanager_service
 from app.logFile import logger
@@ -13,7 +14,7 @@ email_router = APIRouter(prefix="/auth")
 class VerificationRequest(BaseModel):
     email: str
     code: str
-    user_role: str  # "admin" ou "user"
+    user_role: Annotated[str, Field(pattern="^(admin|user)$")]  # "admin" ou "user"
     log_to_alternance: bool = True
 
 # Model for the refresh token request
@@ -29,7 +30,7 @@ class ContactRequest(BaseModel):
     message_text: str
 
 
-@eda_route.post("/send-contact-message")
+@email_router.post("/send-contact-message")
 async def send_contact_message(request: ContactRequest):
     """
     Endpoint for students to send questions or contact messages to the admissions department.
