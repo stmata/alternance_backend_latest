@@ -89,6 +89,71 @@ class EmailService:
             logger.error(f"Failed to send email: {str(e)}")
             return False
 
+    def send_contact_message(self, user_email, message_text):
+        """
+        Sends a message from a student to the admissions department via SendGrid.
+        
+        This function forwards questions and requests from students
+        directly to the admissions department via email.
+        
+        Args:
+            user_email (str): The student's email address.
+            message_text (str): The content of the student's message.
+                
+        Returns:
+            bool: True if the email was sent successfully, False otherwise.
+        """
+        try:
+            #support_email = "contact.jobsearch@skema.edu"
+            support_email = "cheikh.diokhane@skema.edu"
+            subject = f"Student Question - Alternance Application"
+            
+            # HTML body with minimal styling for better presentation
+            body = f"""
+            <html>
+            <body style="font-family: Arial, sans-serif; background-color: #f4f4f4; padding: 20px;">
+                <div style="max-width: 600px; margin: auto; background-color: #ffffff; padding: 20px; border-radius: 8px;">
+                    <p style="font-size: 16px; margin-bottom: 10px;">
+                        <strong>From:</strong> {user_email}
+                    </p>
+                    <div style="background-color: #f8f9fa; border-left: 4px solid #007bff; padding: 15px; margin: 15px 0;">
+                        <p style="font-size: 16px; white-space: pre-wrap; margin: 0;">
+                            {message_text}
+                        </p>
+                    </div>
+                    <p style="font-size: 12px; color: #999999; margin-top: 20px;">
+                        This message was sent via the contact button in the SKEMA Alternance Application.
+                    </p>
+                </div>
+            </body>
+            </html>
+            """
+            
+            # Create message for SendGrid
+            message = Mail(
+                from_email=self.from_email,
+                to_emails=support_email,
+                subject=subject,
+                html_content=body
+            )
+            
+            # Add the student's email as Reply-To
+            message.reply_to = user_email
+            
+            # Send email via SendGrid
+            response = self.sendgrid_client.send(message)
+            
+            if response.status_code in range(200, 300):
+                logger.info(f"Contact message from {user_email} sent successfully")
+                return True
+            else:
+                logger.error(f"SendGrid Error {response.status_code} while sending contact message")
+                return False
+            
+        except Exception as e:
+            logger.error(f"Failed to send contact message: {str(e)}")
+            return False
+        
     def send_email(self, subject, body, to_email):
         """
         Send an email using SendGrid API.
