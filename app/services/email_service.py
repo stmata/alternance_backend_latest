@@ -104,8 +104,7 @@ class EmailService:
             bool: True if the email was sent successfully, False otherwise.
         """
         try:
-            #support_email = "contact.jobsearch@skema.edu"
-            support_email = "cheikh.diokhane@skema.edu"
+            support_email = "contact.jobsearch@skema.edu"
             subject = f"Student Question - Alternance Application"
             
             # HTML body with minimal styling for better presentation
